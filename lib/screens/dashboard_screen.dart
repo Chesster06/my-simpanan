@@ -371,6 +371,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               borderRadius: BorderRadius.circular(24),
               child: Image.asset(
                 'assets/images/savings_empty_state.png',
+                key: const Key('empty_state_illustration'),
                 width: 140,
                 height: 140,
                 fit: BoxFit.contain,
@@ -396,40 +397,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               fontWeight: FontWeight.w400,
               color: AppColors.textSecondary,
               height: 1.45,
-            ),
-          ),
-          const SizedBox(height: 20),
-          InteractiveBouncyScale(
-            onTap: () => _handleNewGoal(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.25),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.add_rounded, color: Colors.white, size: 18),
-                  SizedBox(width: 6),
-                  Text(
-                    'Create First Goal',
-                    key: Key('empty_state_create_goal_button'),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],

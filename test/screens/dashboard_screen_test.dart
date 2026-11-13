@@ -39,7 +39,7 @@ void main() {
     expect(find.byKey(const Key('app_bar_add_goal_button')), findsOneWidget);
     expect(find.byType(SummaryHeaderCard), findsOneWidget);
     expect(find.text('No Savings Goals Yet'), findsOneWidget);
-    expect(find.text('Create First Goal'), findsOneWidget);
+    expect(find.byKey(const Key('empty_state_illustration')), findsOneWidget);
   });
 
   testWidgets('tapping app bar add goal icon navigates to CreateGoalScreen by default', (tester) async {
@@ -60,7 +60,7 @@ void main() {
     expect(find.text('Commitment Schedule Preview'), findsOneWidget);
   });
 
-  testWidgets('tapping empty state Create First Goal navigates to CreateGoalScreen', (tester) async {
+  testWidgets('tapping empty state illustration navigates to CreateGoalScreen', (tester) async {
     tester.view.physicalSize = const Size(800, 1200);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -76,9 +76,9 @@ void main() {
       ),
     );
 
-    final emptyStateBtn = find.byKey(const Key('empty_state_create_goal_button'));
-    await tester.ensureVisible(emptyStateBtn);
-    await tester.tap(emptyStateBtn);
+    final emptyStateImage = find.byKey(const Key('empty_state_illustration'));
+    await tester.ensureVisible(emptyStateImage);
+    await tester.tap(emptyStateImage);
     await tester.pumpAndSettle();
 
     expect(find.text('New Savings Goal'), findsOneWidget);
