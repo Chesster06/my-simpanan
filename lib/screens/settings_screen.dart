@@ -5,6 +5,11 @@ import '../theme/app_colors.dart';
 import '../widgets/app_logo_badge.dart';
 
 class SettingsScreen extends StatefulWidget {
+  static const String keyRemindersEnabled = 'pref_reminders_enabled';
+  static const String keyReminderLeadDays = 'pref_reminder_lead_days';
+  static const String keyReminderHour = 'pref_reminder_time_hour';
+  static const String keyReminderMinute = 'pref_reminder_time_minute';
+
   final SavingsProvider provider;
 
   const SettingsScreen({
@@ -17,11 +22,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  static const String _keyRemindersEnabled = 'pref_reminders_enabled';
-  static const String _keyReminderLeadDays = 'pref_reminder_lead_days';
-  static const String _keyReminderHour = 'pref_reminder_time_hour';
-  static const String _keyReminderMinute = 'pref_reminder_time_minute';
-
   bool _remindersEnabled = true;
   int _reminderLeadDays = 3;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
@@ -36,10 +36,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _remindersEnabled = prefs.getBool(_keyRemindersEnabled) ?? true;
-      _reminderLeadDays = prefs.getInt(_keyReminderLeadDays) ?? 3;
-      final hour = prefs.getInt(_keyReminderHour) ?? 9;
-      final minute = prefs.getInt(_keyReminderMinute) ?? 0;
+      _remindersEnabled = prefs.getBool(SettingsScreen.keyRemindersEnabled) ?? true;
+      _reminderLeadDays = prefs.getInt(SettingsScreen.keyReminderLeadDays) ?? 3;
+      final hour = prefs.getInt(SettingsScreen.keyReminderHour) ?? 9;
+      final minute = prefs.getInt(SettingsScreen.keyReminderMinute) ?? 0;
       _reminderTime = TimeOfDay(hour: hour, minute: minute);
       _isLoading = false;
     });
@@ -48,13 +48,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _setRemindersEnabled(bool value) async {
     setState(() => _remindersEnabled = value);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_keyRemindersEnabled, value);
+    await prefs.setBool(SettingsScreen.keyRemindersEnabled, value);
   }
 
   Future<void> _setReminderLeadDays(int value) async {
     setState(() => _reminderLeadDays = value);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_keyReminderLeadDays, value);
+    await prefs.setInt(SettingsScreen.keyReminderLeadDays, value);
   }
 
   Future<void> _selectReminderTime(BuildContext context) async {
@@ -78,8 +78,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (picked != null) {
       setState(() => _reminderTime = picked);
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(_keyReminderHour, picked.hour);
-      await prefs.setInt(_keyReminderMinute, picked.minute);
+      await prefs.setInt(SettingsScreen.keyReminderHour, picked.hour);
+      await prefs.setInt(SettingsScreen.keyReminderMinute, picked.minute);
     }
   }
 
