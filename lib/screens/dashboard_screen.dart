@@ -106,6 +106,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             actions: [
               IconButton(
+                key: const Key('app_bar_add_goal_button'),
+                icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary, size: 24),
+                tooltip: 'Add Goal',
+                onPressed: () => _handleNewGoal(context),
+              ),
+              IconButton(
                 icon: const Icon(Icons.notifications_none_outlined, color: AppColors.textPrimary),
                 tooltip: 'Reminders',
                 onPressed: () {
@@ -183,23 +189,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ],
                 ),
-              ),
-            ),
-          ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => _handleNewGoal(context),
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            icon: const Icon(Icons.add, size: 20),
-            label: const Text(
-              '+ New Goal',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
               ),
             ),
           ),

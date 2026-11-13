@@ -36,13 +36,13 @@ void main() {
 
     expect(find.byType(AppLogoBadge), findsOneWidget);
     expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
+    expect(find.byKey(const Key('app_bar_add_goal_button')), findsOneWidget);
     expect(find.byType(SummaryHeaderCard), findsOneWidget);
     expect(find.text('No Savings Goals Yet'), findsOneWidget);
-    expect(find.text('+ New Goal'), findsOneWidget);
     expect(find.text('Create First Goal'), findsOneWidget);
   });
 
-  testWidgets('tapping + New Goal navigates to CreateGoalScreen by default', (tester) async {
+  testWidgets('tapping app bar add goal icon navigates to CreateGoalScreen by default', (tester) async {
     final repository = MockSavingsRepository([]);
     final provider = SavingsProvider(repository: repository);
     await provider.initialize();
@@ -53,7 +53,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('+ New Goal'));
+    await tester.tap(find.byKey(const Key('app_bar_add_goal_button')));
     await tester.pumpAndSettle();
 
     expect(find.text('New Savings Goal'), findsOneWidget);

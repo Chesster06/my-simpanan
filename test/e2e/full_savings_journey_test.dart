@@ -30,8 +30,8 @@ void main() {
     expect(find.text('No Savings Goals Yet'), findsOneWidget);
     expect(find.text('RM 0.00'), findsWidgets);
 
-    // 3. Navigate to Create Goal Screen via + New Goal
-    await tester.tap(find.text('+ New Goal'));
+    // 3. Navigate to Create Goal Screen via App Bar Add Button
+    await tester.tap(find.byKey(const Key('app_bar_add_goal_button')));
     await tester.pumpAndSettle();
     expect(find.byType(CreateGoalScreen), findsOneWidget);
 
