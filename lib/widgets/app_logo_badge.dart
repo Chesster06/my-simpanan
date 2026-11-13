@@ -20,24 +20,31 @@ class AppLogoBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Elegant squircle/rounded rectangle radius proportioned to dimension (iOS app icon radius ~22%)
+    final borderRadius = BorderRadius.circular(size.dimension * 0.22);
+
     return Container(
       width: size.dimension,
       height: size.dimension,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.border,
-          width: 1.0,
-        ),
+        color: AppColors.primary,
+        borderRadius: borderRadius,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.22),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: borderRadius,
         child: SizedBox(
           width: size.dimension,
           height: size.dimension,
           child: Image.asset(
             'assets/icons/logo.png',
-            fit: BoxFit.cover,
+            fit: BoxFit.contain,
             errorBuilder: (context, error, stackTrace) {
               return Container(
                 color: AppColors.primary,

@@ -17,7 +17,7 @@ void main() {
     expect(clipRRectFinder, findsOneWidget);
 
     final clipRRect = tester.widget<ClipRRect>(clipRRectFinder);
-    expect(clipRRect.borderRadius, BorderRadius.circular(16));
+    expect(clipRRect.borderRadius, BorderRadius.circular(44 * 0.22));
 
     final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox).first);
     expect(sizedBox.width, 44);
