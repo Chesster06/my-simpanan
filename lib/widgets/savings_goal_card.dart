@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../models/payment_status.dart';
 import '../models/savings_goal.dart';
 import '../theme/app_colors.dart';
+import 'minimalist_svg_illustrations.dart';
 
 class SavingsGoalCard extends StatelessWidget {
   final SavingsGoal goal;
@@ -61,22 +62,27 @@ class SavingsGoalCard extends StatelessWidget {
     final isPaid = status == PaymentStatus.paid || status == PaymentStatus.paidEarly;
     final percentage = (goal.progressPercentage * 100).toInt();
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: AppColors.border,
-              width: 1.0,
-            ),
+    return InteractiveBouncyScale(
+      onTap: onTap,
+      scaleDown: 0.98,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppColors.border,
+            width: 1.0,
           ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
@@ -158,7 +164,6 @@ class SavingsGoalCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }

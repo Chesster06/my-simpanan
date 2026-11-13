@@ -2,8 +2,19 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 abstract final class AppTheme {
+  static const String fontFamily = '-apple-system';
+  static const List<String> fontFamilyFallback = [
+    'SF Pro Display',
+    'SF Pro Text',
+    'Helvetica Neue',
+    'Arial',
+    'sans-serif',
+  ];
+
   static ThemeData get lightTheme {
     return ThemeData(
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: const ColorScheme(
         brightness: Brightness.light,
