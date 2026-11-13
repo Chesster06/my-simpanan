@@ -4,6 +4,7 @@ import '../providers/savings_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_logo_badge.dart';
 import '../widgets/minimalist_svg_illustrations.dart';
+import '../widgets/notched_bottom_nav_bar.dart';
 import '../widgets/savings_goal_card.dart';
 import '../widgets/summary_header_card.dart';
 import 'create_goal_screen.dart';
@@ -146,55 +147,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ? _buildHomeView(context, goals)
                     : _buildAnalyticsView(context),
           ),
-          bottomNavigationBar: Container(
-            decoration: const BoxDecoration(
-              color: AppColors.surface,
-              border: Border(
-                top: BorderSide(
-                  color: AppColors.border,
-                  width: 1.0,
-                ),
-              ),
-            ),
-            child: SafeArea(
-              top: false,
-              bottom: true,
-              minimum: const EdgeInsets.only(bottom: 12),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: BottomNavigationBar(
-                  currentIndex: _currentTabIndex,
-                  onTap: (index) {
-                    setState(() {
-                      _currentTabIndex = index;
-                    });
-                  },
-                  backgroundColor: AppColors.surface,
-                  selectedItemColor: AppColors.primary,
-                  unselectedItemColor: AppColors.neutral,
-                  selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-                  unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-                  elevation: 0,
-                  type: BottomNavigationBarType.fixed,
-                  items: const [
-                    BottomNavigationBarItem(
-                      icon: Padding(
-                        padding: EdgeInsets.only(bottom: 4),
-                        child: Icon(Icons.home_filled),
-                      ),
-                      label: 'Dashboard',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Padding(
-                        padding: EdgeInsets.only(bottom: 4),
-                        child: Icon(Icons.pie_chart_outline_rounded),
-                      ),
-                      label: 'Overview',
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          bottomNavigationBar: NotchedBottomNavBar(
+            currentIndex: _currentTabIndex,
+            onTap: (index) {
+              setState(() {
+                _currentTabIndex = index;
+              });
+            },
+            onAddGoal: () => _handleNewGoal(context),
           ),
         );
       },
