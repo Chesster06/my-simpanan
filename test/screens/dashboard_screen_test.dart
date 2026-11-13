@@ -38,6 +38,42 @@ void main() {
     expect(find.byType(SummaryHeaderCard), findsOneWidget);
     expect(find.text('No Savings Goals Yet'), findsOneWidget);
     expect(find.text('+ New Goal'), findsOneWidget);
+    expect(find.text('Create First Goal'), findsOneWidget);
+  });
+
+  testWidgets('tapping + New Goal navigates to CreateGoalScreen by default', (tester) async {
+    final repository = MockSavingsRepository([]);
+    final provider = SavingsProvider(repository: repository);
+    await provider.initialize();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(provider: provider),
+      ),
+    );
+
+    await tester.tap(find.text('+ New Goal'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('New Savings Goal'), findsOneWidget);
+    expect(find.text('Commitment Schedule Preview'), findsOneWidget);
+  });
+
+  testWidgets('tapping empty state Create First Goal navigates to CreateGoalScreen', (tester) async {
+    final repository = MockSavingsRepository([]);
+    final provider = SavingsProvider(repository: repository);
+    await provider.initialize();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(provider: provider),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('empty_state_create_goal_button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('New Savings Goal'), findsOneWidget);
   });
 
   testWidgets('DashboardScreen renders goal list when goals are present', (tester) async {
