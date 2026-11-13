@@ -337,8 +337,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildSectionTitle('About'),
                 const SizedBox(height: 8),
                 _buildCard([
-                  InkWell(
+                  ListTile(
                     key: const Key('settings_about_card_button'),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    leading: const AppLogoBadge(size: AppLogoBadgeSize.small),
+                    title: const Text(
+                      'About',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    trailing: const Icon(
+                      Icons.chevron_right_rounded,
+                      size: 22,
+                      color: AppColors.textSecondary,
+                    ),
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -346,57 +361,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       );
                     },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Center(
-                            child: AppLogoBadge(size: AppLogoBadgeSize.medium),
-                          ),
-                          const SizedBox(height: 12),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'MySimpanan',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              SizedBox(width: 4),
-                              Icon(
-                                Icons.chevron_right_rounded,
-                                size: 20,
-                                color: AppColors.textSecondary,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            '1.0.0',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'A disciplined savings goal tracker with scheduled monthly installments, Pay Early checklist, and smart reminders.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textSecondary,
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                 ]),
               ],

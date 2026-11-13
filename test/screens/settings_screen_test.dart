@@ -48,7 +48,7 @@ void main() {
     // Section Headers
     expect(find.text('Reminder Preferences'), findsOneWidget);
     expect(find.text('Data Management'), findsOneWidget);
-    expect(find.text('About'), findsOneWidget);
+    expect(find.text('About'), findsNWidgets(2));
 
     // Preferences items
     expect(find.text('Enable Installment Reminders'), findsOneWidget);
@@ -60,14 +60,7 @@ void main() {
 
     // About details
     expect(find.byType(AppLogoBadge), findsOneWidget);
-    expect(find.text('MySimpanan'), findsOneWidget);
-    expect(find.text('1.0.0'), findsOneWidget);
-    expect(
-      find.text(
-        'A disciplined savings goal tracker with scheduled monthly installments, Pay Early checklist, and smart reminders.',
-      ),
-      findsOneWidget,
-    );
+    expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
   });
 
   testWidgets('Toggling Enable Installment Reminders updates switch and persists value', (tester) async {
