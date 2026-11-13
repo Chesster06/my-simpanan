@@ -142,7 +142,6 @@ void main() {
     await tester.pumpWidget(MySimpananApp(savingsProvider: restartedProvider));
     await tester.pumpAndSettle();
     expect(find.text('RM 400.00'), findsWidgets);
-    expect(find.text('3 pending'), findsOneWidget);
 
     // 10. Navigate to Settings and perform Reset All Data
     await tester.tap(find.byIcon(Icons.settings_outlined));

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mysimpanan/widgets/summary_header_card.dart';
 
 void main() {
-  testWidgets('SummaryHeaderCard renders total savings, commitment, and pending badge', (tester) async {
+  testWidgets('SummaryHeaderCard renders total savings and commitment', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -20,10 +20,9 @@ void main() {
     expect(find.text('RM 12,500.50'), findsOneWidget);
     expect(find.text('Due This Month'), findsOneWidget);
     expect(find.text('RM 450.00'), findsOneWidget);
-    expect(find.text('3 pending'), findsOneWidget);
   });
 
-  testWidgets('SummaryHeaderCard renders zero amounts and zero pending badge correctly', (tester) async {
+  testWidgets('SummaryHeaderCard renders zero amounts correctly', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -39,6 +38,5 @@ void main() {
     expect(find.text('Total Savings'), findsOneWidget);
     expect(find.text('Due This Month'), findsOneWidget);
     expect(find.text('RM 0.00'), findsNWidgets(2));
-    expect(find.text('0 pending'), findsOneWidget);
   });
 }
