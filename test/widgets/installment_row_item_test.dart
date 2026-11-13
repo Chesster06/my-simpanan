@@ -7,8 +7,8 @@ import 'package:mysimpanan/widgets/installment_status_chip.dart';
 
 void main() {
   group('InstallmentRowItem', () {
-    testWidgets('renders pending installment with Pay Early button and triggers callback', (tester) async {
-      bool payEarlyTapped = false;
+    testWidgets('renders pending installment with checkbox on left and triggers toggle', (tester) async {
+      bool? selectedState;
 
       final item = InstallmentItem(
         id: 'inst-1',
@@ -23,8 +23,9 @@ void main() {
           home: Scaffold(
             body: InstallmentRowItem(
               installment: item,
-              onPayEarly: () {
-                payEarlyTapped = true;
+              isSelected: false,
+              onSelectChanged: (val) {
+                selectedState = val;
               },
             ),
           ),
@@ -37,13 +38,13 @@ void main() {
       expect(find.byType(InstallmentStatusChip), findsOneWidget);
       expect(find.text('Pending'), findsOneWidget);
 
-      final payEarlyButton = find.widgetWithText(ElevatedButton, 'Pay Early');
-      expect(payEarlyButton, findsOneWidget);
+      final checkbox = find.byType(Checkbox);
+      expect(checkbox, findsOneWidget);
 
-      await tester.tap(payEarlyButton);
+      await tester.tap(checkbox);
       await tester.pump();
 
-      expect(payEarlyTapped, isTrue);
+      expect(selectedState, isTrue);
     });
 
     testWidgets('renders paid installment with check icon and paid date', (tester) async {
@@ -69,10 +70,9 @@ void main() {
       expect(find.text('February 2027'), findsOneWidget);
       expect(find.text('Due 25 Feb 2027'), findsOneWidget);
       expect(find.text('RM 250.50'), findsOneWidget);
-      expect(find.text('Paid'), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
       expect(find.text('Paid 20 Feb 2027'), findsOneWidget);
-      expect(find.text('Pay Early'), findsNothing);
+      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.byType(Checkbox), findsNothing);
     });
 
     testWidgets('renders paidEarly installment with check icon and paid early date', (tester) async {
@@ -98,10 +98,9 @@ void main() {
       expect(find.text('March 2027'), findsOneWidget);
       expect(find.text('Due 25 Mar 2027'), findsOneWidget);
       expect(find.text('RM 500.00'), findsOneWidget);
-      expect(find.text('Paid Early'), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
       expect(find.text('Paid 15 Jan 2027'), findsOneWidget);
-      expect(find.text('Pay Early'), findsNothing);
+      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.byType(Checkbox), findsNothing);
     });
   });
 }
