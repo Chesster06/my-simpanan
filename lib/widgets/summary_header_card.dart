@@ -66,23 +66,6 @@ class SummaryHeaderCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: pendingCount > 0
-                      ? AppColors.warning.withValues(alpha: 0.12)
-                      : AppColors.success.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(9999),
-                ),
-                child: Text(
-                  '$pendingCount pending',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: pendingCount > 0 ? AppColors.warning : AppColors.success,
-                  ),
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 20),
