@@ -82,6 +82,12 @@ class SavingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> clearAllGoals() async {
+    _goals = [];
+    await _repository.saveGoals(_goals);
+    notifyListeners();
+  }
+
   Future<void> payInstallment({
     required String goalId,
     required String installmentId,

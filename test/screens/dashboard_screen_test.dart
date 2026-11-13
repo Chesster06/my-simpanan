@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mysimpanan/models/savings_goal.dart';
 import 'package:mysimpanan/providers/savings_provider.dart';
 import 'package:mysimpanan/repositories/savings_repository.dart';
@@ -124,5 +125,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Installment Schedule'), findsOneWidget);
+  });
+
+  testWidgets('tapping settings icon navigates to SettingsScreen by default', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final repository = MockSavingsRepository([]);
+    final provider = SavingsProvider(repository: repository);
+    await provider.initialize();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(provider: provider),
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Reminder Preferences'), findsOneWidget);
+    expect(find.text('Data Management'), findsOneWidget);
   });
 }
