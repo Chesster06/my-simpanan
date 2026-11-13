@@ -45,7 +45,7 @@ void main() {
     expect(find.text('RM 4,000.00 / RM 10,000.00'), findsOneWidget);
     expect(find.text('40%'), findsOneWidget);
     expect(find.text('RM 500.00 / mo'), findsOneWidget);
-    expect(find.text('Pending'), findsOneWidget);
+    expect(find.text('Pending'), findsNothing);
 
     final progressFinder = find.byType(LinearProgressIndicator);
     expect(progressFinder, findsOneWidget);
@@ -56,7 +56,7 @@ void main() {
     expect(tapped, isTrue);
   });
 
-  testWidgets('SavingsGoalCard displays Paid status badge when current installment is paid', (tester) async {
+  testWidgets('SavingsGoalCard displays Completed status badge when goal is completed', (tester) async {
     final paidGoal = testGoal.copyWith(
       currentSavings: 10000.0,
       installments: [
@@ -81,7 +81,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Paid'), findsOneWidget);
+    expect(find.text('Completed'), findsOneWidget);
     expect(find.text('100%'), findsOneWidget);
   });
 }
