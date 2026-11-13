@@ -7,6 +7,7 @@ import '../widgets/savings_goal_card.dart';
 import '../widgets/summary_header_card.dart';
 import 'create_goal_screen.dart';
 import 'goal_detail_screen.dart';
+import 'settings_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   final SavingsProvider provider;
@@ -44,6 +45,18 @@ class DashboardScreen extends StatelessWidget {
             goalId: goal.id,
             provider: provider,
           ),
+        ),
+      );
+    }
+  }
+
+  void _handleSettingsTap(BuildContext context) {
+    if (onSettingsTap != null) {
+      onSettingsTap!();
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => SettingsScreen(provider: provider),
         ),
       );
     }
@@ -88,7 +101,7 @@ class DashboardScreen extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.settings_outlined, color: AppColors.textPrimary),
                 tooltip: 'Settings',
-                onPressed: onSettingsTap,
+                onPressed: () => _handleSettingsTap(context),
               ),
               const SizedBox(width: 8),
             ],
