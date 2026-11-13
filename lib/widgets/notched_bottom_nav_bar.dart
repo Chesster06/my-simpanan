@@ -48,52 +48,30 @@ class NotchedBottomNavBar extends StatelessWidget {
                 ),
               ),
 
-              // Navigation tab items row
+              // Navigation tab items row: Dashboard on the left, Analytics on the right
               Positioned.fill(
                 child: Row(
                   children: [
-                    // Left Tab: Dashboard / Profile
+                    // Left Tab: Dashboard
                     Expanded(
                       child: _buildNavItem(
-                        icon: Icons.person_outline_rounded,
-                        activeIcon: Icons.person_rounded,
+                        icon: Icons.home_outlined,
+                        activeIcon: Icons.home_rounded,
                         label: 'Dashboard',
                         isSelected: currentIndex == 0,
                         onTap: () => onTap(0),
                       ),
                     ),
 
-                    // Left Tab: Analytics / Overview
+                    // Center gap for "+" button
+                    const SizedBox(width: 80),
+
+                    // Right Tab: Analytics
                     Expanded(
                       child: _buildNavItem(
                         icon: Icons.pie_chart_outline_rounded,
                         activeIcon: Icons.pie_chart_rounded,
                         label: 'Analytics',
-                        isSelected: currentIndex == 1,
-                        onTap: () => onTap(1),
-                      ),
-                    ),
-
-                    // Center gap for "+" button
-                    const SizedBox(width: 72),
-
-                    // Right placeholder / category tab: Savings (returns to Dashboard)
-                    Expanded(
-                      child: _buildNavItem(
-                        icon: Icons.savings_outlined,
-                        activeIcon: Icons.savings_rounded,
-                        label: 'Goals',
-                        isSelected: currentIndex == 0,
-                        onTap: () => onTap(0),
-                      ),
-                    ),
-
-                    // Right tab: Overview
-                    Expanded(
-                      child: _buildNavItem(
-                        icon: Icons.more_horiz_rounded,
-                        activeIcon: Icons.more_horiz_rounded,
-                        label: 'More',
                         isSelected: currentIndex == 1,
                         onTap: () => onTap(1),
                       ),
