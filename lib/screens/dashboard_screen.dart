@@ -7,6 +7,7 @@ import '../widgets/savings_goal_card.dart';
 import '../widgets/summary_header_card.dart';
 import 'create_goal_screen.dart';
 import 'goal_detail_screen.dart';
+import 'notifications_screen.dart';
 import 'settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -55,6 +56,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       );
     }
+  }
+
+  void _handleNotificationsTap(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => NotificationsScreen(provider: widget.provider),
+      ),
+    );
   }
 
   void _handleSettingsTap(BuildContext context) {
@@ -112,16 +121,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onPressed: () => _handleNewGoal(context),
               ),
               IconButton(
+                key: const Key('app_bar_notifications_button'),
                 icon: const Icon(Icons.notifications_none_outlined, color: AppColors.textPrimary),
-                tooltip: 'Reminders',
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Reminders active for monthly installments.'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
+                tooltip: 'Reminders & Notifications',
+                onPressed: () => _handleNotificationsTap(context),
               ),
               IconButton(
                 icon: const Icon(Icons.settings_outlined, color: AppColors.textPrimary),
