@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import '../models/installment_item.dart';
 import '../models/payment_status.dart';
 import '../theme/app_colors.dart';
-import 'installment_status_chip.dart';
 
 class InstallmentRowItem extends StatelessWidget {
   final InstallmentItem installment;
@@ -109,10 +108,8 @@ class InstallmentRowItem extends StatelessWidget {
                     color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 4),
-                if (isPending)
-                  InstallmentStatusChip(status: installment.status)
-                else
+                if (!isPending) ...[
+                  const SizedBox(height: 4),
                   Text(
                     installment.paidDate != null
                         ? 'Paid ${_formatDate(installment.paidDate!)}'
@@ -123,6 +120,7 @@ class InstallmentRowItem extends StatelessWidget {
                       color: AppColors.success,
                     ),
                   ),
+                ],
               ],
             ),
           ],

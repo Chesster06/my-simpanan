@@ -48,7 +48,7 @@ class NotificationsScreen extends StatelessWidget {
                 : ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: pendingAlerts.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    separatorBuilder: (context, index) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final alert = pendingAlerts[index];
                       return _buildAlertCard(context, alert);

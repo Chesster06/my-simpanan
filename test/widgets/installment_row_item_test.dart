@@ -35,8 +35,8 @@ void main() {
       expect(find.text('January 2027'), findsOneWidget);
       expect(find.text('Due 25 Jan 2027'), findsOneWidget);
       expect(find.text('RM 350.00'), findsOneWidget);
-      expect(find.byType(InstallmentStatusChip), findsOneWidget);
-      expect(find.text('Pending'), findsOneWidget);
+      expect(find.byType(InstallmentStatusChip), findsNothing);
+      expect(find.text('Pending'), findsNothing);
 
       final checkbox = find.byType(Checkbox);
       expect(checkbox, findsOneWidget);
