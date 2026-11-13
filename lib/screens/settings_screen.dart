@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/savings_provider.dart';
 import '../theme/app_colors.dart';
-import '../widgets/app_logo_badge.dart';
 import 'about_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -340,7 +339,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     key: const Key('settings_about_card_button'),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    leading: const AppLogoBadge(size: AppLogoBadgeSize.small),
                     title: const Text(
                       'About',
                       style: TextStyle(

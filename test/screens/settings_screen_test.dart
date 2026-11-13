@@ -59,7 +59,7 @@ void main() {
     expect(find.text('Reset All Data'), findsOneWidget);
 
     // About details
-    expect(find.byType(AppLogoBadge), findsOneWidget);
+    expect(find.byType(AppLogoBadge), findsNothing);
     expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
   });
 
