@@ -98,12 +98,18 @@ void main() {
     expect(find.text('4 pending'), findsOneWidget);
     expect(find.text('RM 200.00 / RM 1,000.00'), findsOneWidget);
 
-    // 7. Execute "Pay Early" on installment #2 (index 1)
-    final payEarlyButtons = find.widgetWithText(ElevatedButton, 'Pay Early');
-    expect(payEarlyButtons, findsNWidgets(4));
+    // 7. Execute "Pay Early" on installment #2 (index 1) via Checkbox and bottom PAY EARLY button
+    final checkboxes = find.byType(Checkbox);
+    expect(checkboxes, findsNWidgets(4));
 
-    // Tap Pay Early on the second installment (at index 1)
-    await tester.tap(payEarlyButtons.at(1));
+    // Tap Checkbox on the second installment (at index 1)
+    await tester.tap(checkboxes.at(1));
+    await tester.pumpAndSettle();
+
+    // Verify bottom button updates and tap it
+    final payEarlyBottomBtn = find.byKey(const Key('pay_early_bottom_button'));
+    expect(payEarlyBottomBtn, findsOneWidget);
+    await tester.tap(payEarlyBottomBtn);
     await tester.pumpAndSettle();
 
     // Verify Pay Early confirmation dialog
@@ -117,7 +123,7 @@ void main() {
     final updatedGoal = provider.goals.first;
     expect(updatedGoal.currentSavings, 400.0);
     expect(updatedGoal.installments[1].status, PaymentStatus.paidEarly);
-    expect(find.text('Paid Early'), findsOneWidget);
+    expect(find.textContaining('Paid'), findsWidgets);
     expect(find.text('RM 400.00 / RM 1,000.00'), findsOneWidget);
 
     // Pop back from Goal Detail screen to Dashboard

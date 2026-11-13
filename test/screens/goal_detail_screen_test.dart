@@ -76,7 +76,7 @@ void main() {
       await provider.initialize();
     });
 
-    testWidgets('renders goal details, top card, and installment schedule', (tester) async {
+    testWidgets('renders goal details, top card, and installment schedule with checkboxes', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: GoalDetailScreen(
@@ -93,15 +93,18 @@ void main() {
       expect(find.text('Monthly: RM 250.00'), findsOneWidget);
       expect(find.text('Installment Schedule'), findsOneWidget);
       expect(find.text('3 pending'), findsOneWidget);
-      expect(find.text('Pay Next'), findsOneWidget);
+      expect(find.text('Select All'), findsOneWidget);
 
       expect(find.text('January 2027'), findsOneWidget);
       expect(find.text('February 2027'), findsOneWidget);
       expect(find.text('March 2027'), findsOneWidget);
       expect(find.text('April 2027'), findsOneWidget);
+
+      expect(find.byType(Checkbox), findsNWidgets(3));
+      expect(find.byKey(const Key('pay_early_bottom_button')), findsOneWidget);
     });
 
-    testWidgets('tapping Pay Early shows confirmation dialog and confirms action', (tester) async {
+    testWidgets('selecting checkbox enables bottom PAY EARLY button and confirms payment', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: GoalDetailScreen(
@@ -111,16 +114,19 @@ void main() {
         ),
       );
 
-      // Find 'Pay Early' button on the pending installment (February 2027)
-      final payEarlyButtons = find.widgetWithText(ElevatedButton, 'Pay Early');
-      expect(payEarlyButtons, findsWidgets);
+      // Select February 2027
+      final checkboxes = find.byType(Checkbox);
+      await tester.tap(checkboxes.first);
+      await tester.pumpAndSettle();
 
-      await tester.tap(payEarlyButtons.first);
+      expect(find.text('PAY EARLY (RM 250.00)'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('pay_early_bottom_button')));
       await tester.pumpAndSettle();
 
       // Check dialog content
       expect(find.text('Pay Early Confirmation'), findsOneWidget);
-      expect(find.textContaining('Pay early for February 2027 (RM 250.00)?'), findsOneWidget);
+      expect(find.textContaining('Pay early for 1 selected installment(s) totaling RM 250.00?'), findsOneWidget);
 
       // Confirm payment
       final confirmButton = find.widgetWithText(ElevatedButton, 'Confirm');
@@ -134,7 +140,7 @@ void main() {
       expect(updatedGoal.currentSavings, 500.0);
     });
 
-    testWidgets('tapping Pay Next pays the first pending installment', (tester) async {
+    testWidgets('Select All toggles all pending installments and pays batch', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: GoalDetailScreen(
@@ -144,22 +150,22 @@ void main() {
         ),
       );
 
-      final payNextButton = find.widgetWithText(ElevatedButton, 'Pay Next');
-      expect(payNextButton, findsOneWidget);
-
-      await tester.tap(payNextButton);
+      await tester.tap(find.text('Select All'));
       await tester.pumpAndSettle();
 
-      // Confirmation dialog should open for February 2027
-      expect(find.text('Pay Early Confirmation'), findsOneWidget);
-      expect(find.textContaining('Pay early for February 2027 (RM 250.00)?'), findsOneWidget);
+      expect(find.text('Deselect All'), findsOneWidget);
+      expect(find.text('PAY EARLY (RM 750.00)'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('pay_early_bottom_button')));
+      await tester.pumpAndSettle();
 
       final confirmButton = find.widgetWithText(ElevatedButton, 'Confirm');
       await tester.tap(confirmButton);
       await tester.pumpAndSettle();
 
       final updatedGoal = provider.goals.firstWhere((g) => g.id == 'goal-1');
-      expect(updatedGoal.installments[1].status, PaymentStatus.paidEarly);
+      expect(updatedGoal.installments.every((i) => i.status == PaymentStatus.paid || i.status == PaymentStatus.paidEarly), isTrue);
+      expect(updatedGoal.currentSavings, 1000.0);
     });
 
     testWidgets('delete goal prompts confirmation and deletes goal', (tester) async {

@@ -7,7 +7,7 @@ import '../providers/savings_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/installment_row_item.dart';
 
-class GoalDetailScreen extends StatelessWidget {
+class GoalDetailScreen extends StatefulWidget {
   final String goalId;
   final SavingsProvider provider;
 
@@ -16,6 +16,13 @@ class GoalDetailScreen extends StatelessWidget {
     required this.goalId,
     required this.provider,
   });
+
+  @override
+  State<GoalDetailScreen> createState() => _GoalDetailScreenState();
+}
+
+class _GoalDetailScreenState extends State<GoalDetailScreen> {
+  final Set<String> _selectedInstallmentIds = {};
 
   String _formatCurrency(double amount) {
     final formatter = NumberFormat.currency(
@@ -30,11 +37,33 @@ class GoalDetailScreen extends StatelessWidget {
     return DateFormat('d MMM yyyy').format(date);
   }
 
-  Future<void> _confirmPayEarly(
-    BuildContext context,
-    SavingsGoal goal,
-    InstallmentItem installment,
-  ) async {
+  void _toggleSelect(String id, bool? selected) {
+    setState(() {
+      if (selected == true) {
+        _selectedInstallmentIds.add(id);
+      } else {
+        _selectedInstallmentIds.remove(id);
+      }
+    });
+  }
+
+  void _selectAll(List<InstallmentItem> pending) {
+    setState(() {
+      if (_selectedInstallmentIds.length == pending.length) {
+        _selectedInstallmentIds.clear();
+      } else {
+        _selectedInstallmentIds.clear();
+        _selectedInstallmentIds.addAll(pending.map((i) => i.id));
+      }
+    });
+  }
+
+  Future<void> _processBatchPayEarly(BuildContext context, SavingsGoal goal, List<InstallmentItem> pendingItems) async {
+    final selectedItems = pendingItems.where((i) => _selectedInstallmentIds.contains(i.id)).toList();
+    if (selectedItems.isEmpty) return;
+
+    final totalAmount = selectedItems.fold<double>(0.0, (sum, item) => sum + item.amount);
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -51,7 +80,7 @@ class GoalDetailScreen extends StatelessWidget {
           ),
         ),
         content: Text(
-          'Pay early for ${installment.monthLabel} (${_formatCurrency(installment.amount)})? This will increase your current savings and mark this installment as paid early.',
+          'Pay early for ${selectedItems.length} selected installment(s) totaling ${_formatCurrency(totalAmount)}? This will increase your current savings and mark them as Paid Early.',
           style: const TextStyle(
             fontSize: 14,
             color: AppColors.textSecondary,
@@ -83,10 +112,23 @@ class GoalDetailScreen extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      await provider.payEarlyInstallment(
-        goalId: goal.id,
-        installmentId: installment.id,
-      );
+      for (final item in selectedItems) {
+        await widget.provider.payEarlyInstallment(
+          goalId: goal.id,
+          installmentId: item.id,
+        );
+      }
+      setState(() {
+        _selectedInstallmentIds.clear();
+      });
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Successfully paid ${_formatCurrency(totalAmount)} early!'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
     }
   }
 
@@ -134,7 +176,7 @@ class GoalDetailScreen extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      await provider.deleteGoal(goal.id);
+      await widget.provider.deleteGoal(goal.id);
       if (context.mounted) {
         Navigator.of(context).maybePop();
       }
@@ -144,9 +186,9 @@ class GoalDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: provider,
+      listenable: widget.provider,
       builder: (context, _) {
-        final goalIndex = provider.goals.indexWhere((g) => g.id == goalId);
+        final goalIndex = widget.provider.goals.indexWhere((g) => g.id == widget.goalId);
         if (goalIndex == -1) {
           return Scaffold(
             appBar: AppBar(
@@ -161,12 +203,18 @@ class GoalDetailScreen extends StatelessWidget {
           );
         }
 
-        final goal = provider.goals[goalIndex];
+        final goal = widget.provider.goals[goalIndex];
         final pendingInstallments = goal.installments
             .where((i) => i.status == PaymentStatus.pending)
             .toList();
-        final pendingCount = pendingInstallments.length;
-        final nextPending = goal.nextPendingInstallment;
+
+        final selectedPendingItems = pendingInstallments
+            .where((i) => _selectedInstallmentIds.contains(i.id))
+            .toList();
+        final selectedTotalAmount = selectedPendingItems.fold<double>(
+          0.0,
+          (sum, item) => sum + item.amount,
+        );
 
         final monthlyRate = goal.installments.isNotEmpty
             ? goal.installments.first.amount
@@ -202,16 +250,67 @@ class GoalDetailScreen extends StatelessWidget {
               const SizedBox(width: 8),
             ],
           ),
-          body: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _buildTopCard(goal, monthlyRate),
-              const SizedBox(height: 24),
-              _buildScheduleHeader(context, goal, pendingCount, nextPending),
-              const SizedBox(height: 12),
-              _buildScheduleList(context, goal),
-            ],
+          body: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              children: [
+                _buildTopCard(goal, monthlyRate),
+                const SizedBox(height: 24),
+                _buildScheduleHeader(context, goal, pendingInstallments),
+                const SizedBox(height: 12),
+                _buildScheduleList(context, goal),
+                const SizedBox(height: 96),
+              ],
+            ),
           ),
+          bottomSheet: pendingInstallments.isNotEmpty
+              ? Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: const BoxDecoration(
+                    color: AppColors.surface,
+                    border: Border(
+                      top: BorderSide(
+                        color: AppColors.border,
+                        width: 1.0,
+                      ),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    minimum: const EdgeInsets.only(bottom: 8),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        key: const Key('pay_early_bottom_button'),
+                        onPressed: selectedPendingItems.isNotEmpty
+                            ? () => _processBatchPayEarly(context, goal, pendingInstallments)
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          disabledBackgroundColor: AppColors.neutral.withValues(alpha: 0.3),
+                          foregroundColor: Colors.white,
+                          disabledForegroundColor: Colors.white70,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          selectedPendingItems.isNotEmpty
+                              ? 'PAY EARLY (${_formatCurrency(selectedTotalAmount)})'
+                              : 'SELECT INSTALLMENTS TO PAY EARLY',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : null,
         );
       },
     );
@@ -325,9 +424,11 @@ class GoalDetailScreen extends StatelessWidget {
   Widget _buildScheduleHeader(
     BuildContext context,
     SavingsGoal goal,
-    int pendingCount,
-    InstallmentItem? nextPending,
+    List<InstallmentItem> pendingInstallments,
   ) {
+    final allSelected = pendingInstallments.isNotEmpty &&
+        _selectedInstallmentIds.length == pendingInstallments.length;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -349,7 +450,7 @@ class GoalDetailScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(9999),
               ),
               child: Text(
-                '$pendingCount pending',
+                '${pendingInstallments.length} pending',
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -359,24 +460,17 @@ class GoalDetailScreen extends StatelessWidget {
             ),
           ],
         ),
-        if (nextPending != null)
-          ElevatedButton(
-            onPressed: () => _confirmPayEarly(context, goal, nextPending),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              minimumSize: const Size(0, 32),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6),
-              ),
-              textStyle: const TextStyle(
-                fontSize: 12,
+        if (pendingInstallments.isNotEmpty)
+          TextButton(
+            onPressed: () => _selectAll(pendingInstallments),
+            child: Text(
+              allSelected ? 'Deselect All' : 'Select All',
+              style: const TextStyle(
+                color: AppColors.primary,
                 fontWeight: FontWeight.w600,
+                fontSize: 13,
               ),
             ),
-            child: const Text('Pay Next'),
           ),
       ],
     );
@@ -418,9 +512,11 @@ class GoalDetailScreen extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: goal.installments.map((installment) {
+          final isSelected = _selectedInstallmentIds.contains(installment.id);
           return InstallmentRowItem(
             installment: installment,
-            onPayEarly: () => _confirmPayEarly(context, goal, installment),
+            isSelected: isSelected,
+            onSelectChanged: (val) => _toggleSelect(installment.id, val),
           );
         }).toList(),
       ),
