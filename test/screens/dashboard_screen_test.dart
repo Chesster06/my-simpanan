@@ -63,4 +63,30 @@ void main() {
     expect(find.byType(SavingsGoalCard), findsOneWidget);
     expect(find.text('ASNB Bumiputera'), findsOneWidget);
   });
+
+  testWidgets('tapping SavingsGoalCard navigates to GoalDetailScreen by default', (tester) async {
+    final repository = MockSavingsRepository([
+      SavingsGoal(
+        id: 'g-1',
+        name: 'ASNB Bumiputera',
+        targetAmount: 5000.0,
+        currentSavings: 1500.0,
+        startDate: DateTime(2026, 1, 1),
+        targetDate: DateTime(2026, 12, 31),
+      ),
+    ]);
+    final provider = SavingsProvider(repository: repository);
+    await provider.initialize();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(provider: provider),
+      ),
+    );
+
+    await tester.tap(find.byType(SavingsGoalCard));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Installment Schedule'), findsOneWidget);
+  });
 }
