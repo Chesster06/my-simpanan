@@ -3,6 +3,7 @@ import '../models/savings_goal.dart';
 import '../providers/savings_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_logo_badge.dart';
+import '../widgets/minimalist_svg_illustrations.dart';
 import '../widgets/savings_goal_card.dart';
 import '../widgets/summary_header_card.dart';
 import 'create_goal_screen.dart';
@@ -375,10 +376,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildEmptyState(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: AppColors.border,
           width: 1.0,
@@ -387,24 +388,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.08),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.savings_outlined,
-              size: 40,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(height: 16),
+          const MinimalistSavingsIllustration(size: 110),
+          const SizedBox(height: 20),
           const Text(
             'No Savings Goals Yet',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
               color: AppColors.textPrimary,
             ),
           ),
@@ -416,28 +407,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
               fontSize: 13,
               fontWeight: FontWeight.w400,
               color: AppColors.textSecondary,
-              height: 1.4,
+              height: 1.45,
             ),
           ),
           const SizedBox(height: 20),
-          ElevatedButton.icon(
-            key: const Key('empty_state_create_goal_button'),
-            onPressed: () => _handleNewGoal(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6),
+          InteractiveBouncyScale(
+            onTap: () => _handleNewGoal(context),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            ),
-            icon: const Icon(Icons.add, size: 18),
-            label: const Text(
-              'Create First Goal',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.add_rounded, color: Colors.white, size: 18),
+                  SizedBox(width: 6),
+                  Text(
+                    'Create First Goal',
+                    key: Key('empty_state_create_goal_button'),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
