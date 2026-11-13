@@ -9,7 +9,7 @@ import 'create_goal_screen.dart';
 import 'goal_detail_screen.dart';
 import 'settings_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   final SavingsProvider provider;
   final VoidCallback? onNewGoal;
   final ValueChanged<SavingsGoal>? onGoalTap;
@@ -23,27 +23,34 @@ class DashboardScreen extends StatelessWidget {
     this.onSettingsTap,
   });
 
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  int _currentTabIndex = 0;
+
   void _handleNewGoal(BuildContext context) {
-    if (onNewGoal != null) {
-      onNewGoal!();
+    if (widget.onNewGoal != null) {
+      widget.onNewGoal!();
     } else {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => CreateGoalScreen(provider: provider),
+          builder: (_) => CreateGoalScreen(provider: widget.provider),
         ),
       );
     }
   }
 
   void _handleGoalTap(BuildContext context, SavingsGoal goal) {
-    if (onGoalTap != null) {
-      onGoalTap!(goal);
+    if (widget.onGoalTap != null) {
+      widget.onGoalTap!(goal);
     } else {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => GoalDetailScreen(
             goalId: goal.id,
-            provider: provider,
+            provider: widget.provider,
           ),
         ),
       );
@@ -51,12 +58,12 @@ class DashboardScreen extends StatelessWidget {
   }
 
   void _handleSettingsTap(BuildContext context) {
-    if (onSettingsTap != null) {
-      onSettingsTap!();
+    if (widget.onSettingsTap != null) {
+      widget.onSettingsTap!();
     } else {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => SettingsScreen(provider: provider),
+          builder: (_) => SettingsScreen(provider: widget.provider),
         ),
       );
     }
@@ -65,9 +72,9 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: provider,
+      listenable: widget.provider,
       builder: (context, _) {
-        final goals = provider.goals;
+        final goals = widget.provider.goals;
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -99,6 +106,18 @@ class DashboardScreen extends StatelessWidget {
             ),
             actions: [
               IconButton(
+                icon: const Icon(Icons.notifications_none_outlined, color: AppColors.textPrimary),
+                tooltip: 'Reminders',
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Reminders active for monthly installments.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
                 icon: const Icon(Icons.settings_outlined, color: AppColors.textPrimary),
                 tooltip: 'Settings',
                 onPressed: () => _handleSettingsTap(context),
@@ -106,65 +125,63 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(width: 8),
             ],
           ),
-          body: provider.isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.primary,
-                  ),
-                )
-              : ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    SummaryHeaderCard(
-                      totalSavings: provider.totalSavings,
-                      dueThisMonth: provider.monthlyCommitmentForCurrentMonth,
-                      pendingCount: provider.pendingInstallmentsCount,
+          body: SafeArea(
+            child: widget.provider.isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primary,
                     ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Savings Goals',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        if (goals.isNotEmpty)
-                          Text(
-                            '${goals.length} active',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    if (goals.isEmpty)
-                      _buildEmptyState(context)
-                    else
-                      ...goals.map((goal) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: SavingsGoalCard(
-                            goal: goal,
-                            onTap: () => _handleGoalTap(context, goal),
-                          ),
-                        );
-                      }),
-                  ],
+                  )
+                : _currentTabIndex == 0
+                    ? _buildHomeView(context, goals)
+                    : _buildAnalyticsView(context),
+          ),
+          bottomNavigationBar: Container(
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              border: Border(
+                top: BorderSide(
+                  color: AppColors.border,
+                  width: 1.0,
                 ),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              child: BottomNavigationBar(
+                currentIndex: _currentTabIndex,
+                onTap: (index) {
+                  setState(() {
+                    _currentTabIndex = index;
+                  });
+                },
+                backgroundColor: AppColors.surface,
+                selectedItemColor: AppColors.primary,
+                unselectedItemColor: AppColors.neutral,
+                selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+                elevation: 0,
+                type: BottomNavigationBarType.fixed,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home_filled),
+                    label: 'Dashboard',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.pie_chart_outline_rounded),
+                    label: 'Overview',
+                  ),
+                ],
+              ),
+            ),
+          ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => _handleNewGoal(context),
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 2,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(8),
             ),
             icon: const Icon(Icons.add, size: 20),
             label: const Text(
@@ -177,6 +194,178 @@ class DashboardScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildHomeView(BuildContext context, List<SavingsGoal> goals) {
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      children: [
+        SummaryHeaderCard(
+          totalSavings: widget.provider.totalSavings,
+          dueThisMonth: widget.provider.monthlyCommitmentForCurrentMonth,
+          pendingCount: widget.provider.pendingInstallmentsCount,
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Savings Goals',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            if (goals.isNotEmpty)
+              Text(
+                '${goals.length} active',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (goals.isEmpty)
+          _buildEmptyState(context)
+        else
+          ...goals.map((goal) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: SavingsGoalCard(
+                goal: goal,
+                onTap: () => _handleGoalTap(context, goal),
+              ),
+            );
+          }),
+        const SizedBox(height: 48),
+      ],
+    );
+  }
+
+  Widget _buildAnalyticsView(BuildContext context) {
+    final goals = widget.provider.goals;
+    final totalTarget = widget.provider.totalTarget;
+    final totalSavings = widget.provider.totalSavings;
+    final overallProgress = totalTarget > 0 ? (totalSavings / totalTarget).clamp(0.0, 1.0) : 0.0;
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Overall Progress',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: overallProgress,
+                  minHeight: 12,
+                  backgroundColor: AppColors.border,
+                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${(overallProgress * 100).toStringAsFixed(1)}% Achieved',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  Text(
+                    '${goals.length} Total Goals',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Active Goal Targets',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (goals.isEmpty)
+                const Text(
+                  'No goals created yet. Create a goal to see breakdown analytics.',
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                )
+              else
+                ...goals.map((g) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            g.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          'RM ${g.currentSavings.toStringAsFixed(2)} / RM ${g.targetAmount.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
