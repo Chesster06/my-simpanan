@@ -1,30 +1,31 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:mysimpanan/main.dart';
+import 'package:mysimpanan/models/savings_goal.dart';
+import 'package:mysimpanan/providers/savings_provider.dart';
+import 'package:mysimpanan/repositories/savings_repository.dart';
+import 'package:mysimpanan/screens/dashboard_screen.dart';
+
+class FakeSavingsRepository implements SavingsRepository {
+  List<SavingsGoal> goals = [];
+  @override
+  Future<List<SavingsGoal>> loadGoals() async => goals;
+  @override
+  Future<void> saveGoals(List<SavingsGoal> newGoals) async {
+    goals = newGoals;
+  }
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('MySimpananApp initializes and renders DashboardScreen with AppTheme', (tester) async {
+    final repository = FakeSavingsRepository();
+    final provider = SavingsProvider(repository: repository);
+    await provider.initialize();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(
+      MySimpananApp(savingsProvider: provider),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(DashboardScreen), findsOneWidget);
+    expect(find.text('MySimpanan'), findsOneWidget);
   });
 }
