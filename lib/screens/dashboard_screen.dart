@@ -148,30 +148,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             child: SafeArea(
               top: false,
-              child: BottomNavigationBar(
-                currentIndex: _currentTabIndex,
-                onTap: (index) {
-                  setState(() {
-                    _currentTabIndex = index;
-                  });
-                },
-                backgroundColor: AppColors.surface,
-                selectedItemColor: AppColors.primary,
-                unselectedItemColor: AppColors.neutral,
-                selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-                unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-                elevation: 0,
-                type: BottomNavigationBarType.fixed,
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.home_filled),
-                    label: 'Dashboard',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.pie_chart_outline_rounded),
-                    label: 'Overview',
-                  ),
-                ],
+              bottom: true,
+              minimum: const EdgeInsets.only(bottom: 12),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: BottomNavigationBar(
+                  currentIndex: _currentTabIndex,
+                  onTap: (index) {
+                    setState(() {
+                      _currentTabIndex = index;
+                    });
+                  },
+                  backgroundColor: AppColors.surface,
+                  selectedItemColor: AppColors.primary,
+                  unselectedItemColor: AppColors.neutral,
+                  selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                  unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+                  elevation: 0,
+                  type: BottomNavigationBarType.fixed,
+                  items: const [
+                    BottomNavigationBarItem(
+                      icon: Padding(
+                        padding: EdgeInsets.only(bottom: 4),
+                        child: Icon(Icons.home_filled),
+                      ),
+                      label: 'Dashboard',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Padding(
+                        padding: EdgeInsets.only(bottom: 4),
+                        child: Icon(Icons.pie_chart_outline_rounded),
+                      ),
+                      label: 'Overview',
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
