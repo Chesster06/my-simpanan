@@ -5,6 +5,7 @@ import '../theme/app_colors.dart';
 import '../widgets/app_logo_badge.dart';
 import '../widgets/savings_goal_card.dart';
 import '../widgets/summary_header_card.dart';
+import 'goal_detail_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   final SavingsProvider provider;
@@ -19,6 +20,21 @@ class DashboardScreen extends StatelessWidget {
     this.onGoalTap,
     this.onSettingsTap,
   });
+
+  void _handleGoalTap(BuildContext context, SavingsGoal goal) {
+    if (onGoalTap != null) {
+      onGoalTap!(goal);
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => GoalDetailScreen(
+            goalId: goal.id,
+            provider: provider,
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +126,7 @@ class DashboardScreen extends StatelessWidget {
                           padding: const EdgeInsets.only(bottom: 12),
                           child: SavingsGoalCard(
                             goal: goal,
-                            onTap: () => onGoalTap?.call(goal),
+                            onTap: () => _handleGoalTap(context, goal),
                           ),
                         );
                       }),
