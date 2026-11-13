@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/savings_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_logo_badge.dart';
+import 'about_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const String keyRemindersEnabled = 'pref_reminders_enabled';
@@ -336,43 +337,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildSectionTitle('About'),
                 const SizedBox(height: 8),
                 _buildCard([
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Center(
-                          child: AppLogoBadge(size: AppLogoBadgeSize.medium),
+                  InkWell(
+                    key: const Key('settings_about_card_button'),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const AboutScreen(),
                         ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'MySimpanan',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Center(
+                            child: AppLogoBadge(size: AppLogoBadgeSize.medium),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          '1.0.0',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textSecondary,
+                          const SizedBox(height: 12),
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'MySimpanan',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              SizedBox(width: 4),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                size: 20,
+                                color: AppColors.textSecondary,
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'A disciplined savings goal tracker with scheduled monthly installments, Pay Early checklist, and smart reminders.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
-                            height: 1.4,
+                          const SizedBox(height: 4),
+                          const Text(
+                            '1.0.0',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 12),
+                          const Text(
+                            'A disciplined savings goal tracker with scheduled monthly installments, Pay Early checklist, and smart reminders.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ]),
