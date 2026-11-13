@@ -26,8 +26,8 @@ void main() {
     expect(find.byType(NotchedBottomNavBar), findsOneWidget);
     expect(find.text('Dashboard'), findsOneWidget);
     expect(find.text('Analytics'), findsOneWidget);
-    expect(find.text('Goals'), findsOneWidget);
-    expect(find.text('More'), findsOneWidget);
+    expect(find.text('Goals'), findsNothing);
+    expect(find.text('More'), findsNothing);
 
     final addButton = find.byKey(const Key('nav_center_add_button'));
     expect(addButton, findsOneWidget);
