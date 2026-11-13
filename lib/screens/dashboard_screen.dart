@@ -365,7 +365,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const MinimalistSavingsIllustration(size: 110),
+          InteractiveBouncyScale(
+            onTap: () => _handleNewGoal(context),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Image.asset(
+                'assets/images/savings_empty_state.png',
+                width: 140,
+                height: 140,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
           const SizedBox(height: 20),
           const Text(
             'No Savings Goals Yet',
