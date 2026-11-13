@@ -5,6 +5,7 @@ import '../theme/app_colors.dart';
 import '../widgets/app_logo_badge.dart';
 import '../widgets/savings_goal_card.dart';
 import '../widgets/summary_header_card.dart';
+import 'create_goal_screen.dart';
 import 'goal_detail_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -20,6 +21,18 @@ class DashboardScreen extends StatelessWidget {
     this.onGoalTap,
     this.onSettingsTap,
   });
+
+  void _handleNewGoal(BuildContext context) {
+    if (onNewGoal != null) {
+      onNewGoal!();
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => CreateGoalScreen(provider: provider),
+        ),
+      );
+    }
+  }
 
   void _handleGoalTap(BuildContext context, SavingsGoal goal) {
     if (onGoalTap != null) {
@@ -119,7 +132,7 @@ class DashboardScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     if (goals.isEmpty)
-                      _buildEmptyState()
+                      _buildEmptyState(context)
                     else
                       ...goals.map((goal) {
                         return Padding(
@@ -133,7 +146,7 @@ class DashboardScreen extends StatelessWidget {
                   ],
                 ),
           floatingActionButton: FloatingActionButton.extended(
-            onPressed: onNewGoal,
+            onPressed: () => _handleNewGoal(context),
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 2,
@@ -154,7 +167,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
@@ -199,6 +212,28 @@ class DashboardScreen extends StatelessWidget {
               fontWeight: FontWeight.w400,
               color: AppColors.textSecondary,
               height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            key: const Key('empty_state_create_goal_button'),
+            onPressed: () => _handleNewGoal(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            ),
+            icon: const Icon(Icons.add, size: 18),
+            label: const Text(
+              'Create First Goal',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
