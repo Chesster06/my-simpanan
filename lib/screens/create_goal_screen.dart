@@ -10,10 +10,14 @@ import '../theme/app_colors.dart';
 
 class CreateGoalScreen extends StatefulWidget {
   final SavingsProvider provider;
+  final DateTime? initialStartDate;
+  final DateTime? initialTargetDate;
 
   const CreateGoalScreen({
     super.key,
     required this.provider,
+    this.initialStartDate,
+    this.initialTargetDate,
   });
 
   @override
@@ -35,9 +39,9 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   void initState() {
     super.initState();
     final now = DateTime.now();
-    _startDate = DateTime(now.year, now.month, now.day);
-    // Default target date to 6 months in the future on due day
-    _targetDate = DateTime(now.year, now.month + 6, _dueDay);
+    _startDate = widget.initialStartDate ?? DateTime(now.year, now.month, now.day);
+    // Default target date to 6 months in the future on due day or provided initial target date
+    _targetDate = widget.initialTargetDate ?? DateTime(now.year, now.month + 6, _dueDay);
   }
 
   @override
