@@ -143,9 +143,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       color: AppColors.primary,
                     ),
                   )
-                : _currentTabIndex == 0
-                    ? _buildHomeView(context, goals)
-                    : _buildAnalyticsView(context),
+                : AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 260),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                    child: _currentTabIndex == 0
+                        ? KeyedSubtree(
+                            key: const ValueKey('home_view_tab'),
+                            child: _buildHomeView(context, goals),
+                          )
+                        : KeyedSubtree(
+                            key: const ValueKey('analytics_view_tab'),
+                            child: _buildAnalyticsView(context),
+                          ),
+                  ),
           ),
           bottomNavigationBar: NotchedBottomNavBar(
             currentIndex: _currentTabIndex,
