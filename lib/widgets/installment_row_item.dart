@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/installment_item.dart';
 import '../models/payment_status.dart';
+import '../services/locale_service.dart';
 import '../theme/app_colors.dart';
 
 class InstallmentRowItem extends StatelessWidget {
@@ -19,12 +20,7 @@ class InstallmentRowItem extends StatelessWidget {
   });
 
   String _formatCurrency(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'en_MY',
-      symbol: 'RM ',
-      decimalDigits: 2,
-    );
-    return formatter.format(amount);
+    return LocaleService.instance.formatCurrency(amount);
   }
 
   String _formatDate(DateTime date) {
@@ -86,7 +82,7 @@ class InstallmentRowItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Due ${_formatDate(installment.dueDate)}',
+                    '${LocaleService.instance.tr('due')} ${_formatDate(installment.dueDate)}',
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
@@ -112,8 +108,8 @@ class InstallmentRowItem extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     installment.paidDate != null
-                        ? 'Paid ${_formatDate(installment.paidDate!)}'
-                        : 'Paid',
+                        ? '${LocaleService.instance.tr('paid')} ${_formatDate(installment.paidDate!)}'
+                        : LocaleService.instance.tr('paid'),
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/locale_service.dart';
 import '../theme/app_colors.dart';
 import 'minimalist_svg_illustrations.dart';
 
@@ -57,7 +58,7 @@ class NotchedBottomNavBar extends StatelessWidget {
                       child: _buildNavItem(
                         icon: Icons.home_outlined,
                         activeIcon: Icons.home_rounded,
-                        label: 'Dashboard',
+                        label: LocaleService.instance.tr('dashboard'),
                         isSelected: currentIndex == 0,
                         onTap: () => onTap(0),
                       ),
@@ -69,9 +70,9 @@ class NotchedBottomNavBar extends StatelessWidget {
                     // Right Tab: Analytics
                     Expanded(
                       child: _buildNavItem(
-                        icon: Icons.pie_chart_outline_rounded,
-                        activeIcon: Icons.pie_chart_rounded,
-                        label: 'Analytics',
+                        icon: Icons.bar_chart_rounded,
+                        activeIcon: Icons.insert_chart_rounded,
+                        label: LocaleService.instance.tr('analytics'),
                         isSelected: currentIndex == 1,
                         onTap: () => onTap(1),
                       ),

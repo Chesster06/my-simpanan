@@ -31,6 +31,11 @@ void main() {
   });
 
   testWidgets('SettingsScreen renders all sections, titles, and about details', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final repository = MockSavingsRepository([]);
     final provider = SavingsProvider(repository: repository);
     await provider.initialize();
@@ -46,8 +51,8 @@ void main() {
     expect(find.text('Settings'), findsOneWidget);
 
     // Section Headers
+    expect(find.text('Choose Language'), findsOneWidget);
     expect(find.text('Reminder Preferences'), findsOneWidget);
-    expect(find.text('Data Management'), findsOneWidget);
     expect(find.text('About'), findsNWidgets(2));
 
     // Preferences items
@@ -55,12 +60,9 @@ void main() {
     expect(find.text('Reminder Lead Time'), findsOneWidget);
     expect(find.text('Daily Reminder Time'), findsOneWidget);
 
-    // Data management items
-    expect(find.text('Reset All Data'), findsOneWidget);
-
     // About details
     expect(find.byType(AppLogoBadge), findsNothing);
-    expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_right_rounded), findsWidgets);
   });
 
   testWidgets('Toggling Enable Installment Reminders updates switch and persists value', (tester) async {
@@ -110,73 +112,5 @@ void main() {
 
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getInt('pref_reminder_lead_days'), equals(5));
-  });
-
-  testWidgets('Reset All Data shows confirmation dialog and cancels without clearing', (tester) async {
-    final goal = SavingsGoal(
-      id: 'g-1',
-      name: 'Emergency Fund',
-      targetAmount: 3000,
-      currentSavings: 500,
-      startDate: DateTime(2026, 1, 1),
-      targetDate: DateTime(2026, 12, 31),
-    );
-    final repository = MockSavingsRepository([goal]);
-    final provider = SavingsProvider(repository: repository);
-    await provider.initialize();
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: SettingsScreen(provider: provider),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Reset All Data'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Reset All Data?'), findsOneWidget);
-    expect(
-      find.text('This will permanently delete all your savings goals and installment history. This action cannot be undone.'),
-      findsOneWidget,
-    );
-
-    // Tap Cancel
-    await tester.tap(find.text('Cancel'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Reset All Data?'), findsNothing);
-    expect(provider.goals.length, equals(1));
-  });
-
-  testWidgets('Reset All Data confirmed deletes all goals and displays confirmation snackbar', (tester) async {
-    final goal = SavingsGoal(
-      id: 'g-1',
-      name: 'Emergency Fund',
-      targetAmount: 3000,
-      currentSavings: 500,
-      startDate: DateTime(2026, 1, 1),
-      targetDate: DateTime(2026, 12, 31),
-    );
-    final repository = MockSavingsRepository([goal]);
-    final provider = SavingsProvider(repository: repository);
-    await provider.initialize();
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: SettingsScreen(provider: provider),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Reset All Data'));
-    await tester.pumpAndSettle();
-
-    // Tap Confirm Reset
-    await tester.tap(find.text('Reset'));
-    await tester.pumpAndSettle();
-
-    expect(provider.goals.isEmpty, isTrue);
-    expect(find.text('All savings data has been reset'), findsOneWidget);
   });
 }

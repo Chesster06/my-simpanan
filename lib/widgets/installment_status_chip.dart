@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/payment_status.dart';
+import '../services/locale_service.dart';
 
 class InstallmentStatusChip extends StatelessWidget {
   final PaymentStatus status;
@@ -15,17 +16,17 @@ class InstallmentStatusChip extends StatelessWidget {
       PaymentStatus.pending => (
           const Color(0xFFFEF3C7),
           const Color(0xFFD97706),
-          'Pending',
+          LocaleService.instance.tr('pending'),
         ),
       PaymentStatus.paid => (
           const Color(0xFFD1FAE5),
           const Color(0xFF059669),
-          'Paid',
+          LocaleService.instance.tr('paid'),
         ),
       PaymentStatus.paidEarly => (
           const Color(0xFFEEF2FF),
           const Color(0xFF4F46E5),
-          'Paid Early',
+          LocaleService.instance.tr('paid_early'),
         ),
     };
 

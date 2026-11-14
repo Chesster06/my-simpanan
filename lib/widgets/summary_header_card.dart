@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import '../services/locale_service.dart';
 import '../theme/app_colors.dart';
 
 class SummaryHeaderCard extends StatelessWidget {
@@ -15,12 +15,7 @@ class SummaryHeaderCard extends StatelessWidget {
   });
 
   String _formatCurrency(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'en_MY',
-      symbol: 'RM ',
-      decimalDigits: 2,
-    );
-    return formatter.format(amount);
+    return LocaleService.instance.formatCurrency(amount);
   }
 
   @override
@@ -50,7 +45,7 @@ class SummaryHeaderCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Total Savings',
+                    LocaleService.instance.tr('total_savings'),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -81,7 +76,7 @@ class SummaryHeaderCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Due This Month',
+                LocaleService.instance.tr('due_this_month'),
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/savings_provider.dart';
+import '../services/locale_service.dart';
 import '../theme/app_colors.dart';
 import 'about_screen.dart';
 
@@ -26,6 +27,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _reminderLeadDays = 3;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
   bool _isLoading = true;
+
+  static final List<DropdownMenuItem<String>> _languageDropdownItems =
+      LocaleService.allLanguages.map((lang) {
+    return DropdownMenuItem<String>(
+      value: lang.name,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            lang.name,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'Language code: ${lang.code.toUpperCase()}',
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }).toList();
 
   @override
   void initState() {
@@ -83,73 +114,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<void> _handleResetAllData(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        title: const Text(
-          'Reset All Data?',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        content: const Text(
-          'This will permanently delete all your savings goals and installment history. This action cannot be undone.',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.textSecondary,
-            height: 1.4,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6),
-              ),
-            ),
-            child: const Text(
-              'Reset',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && mounted) {
-      await widget.provider.clearAllGoals();
-      if (!mounted) return;
-      ScaffoldMessenger.of(this.context).showSnackBar(
-        const SnackBar(
-          content: Text('All savings data has been reset'),
-          backgroundColor: AppColors.textPrimary,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
-  }
-
   String _formatTime(TimeOfDay time) {
     final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
     final minute = time.minute.toString().padLeft(2, '0');
@@ -162,9 +126,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text(
-          'Settings',
-          style: TextStyle(
+        title: Text(
+          LocaleService.instance.tr('settings'),
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
@@ -190,24 +154,94 @@ class _SettingsScreenState extends State<SettingsScreen> {
           : ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               children: [
-                _buildSectionTitle('Reminder Preferences'),
+                _buildSectionTitle(LocaleService.instance.tr('choose_language')),
+                const SizedBox(height: 8),
+                _buildCard([
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          key: const Key('settings_language_dropdown'),
+                          isExpanded: true,
+                          value: LocaleService.instance.currentLanguage.name,
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.textSecondary,
+                            size: 24,
+                          ),
+                          dropdownColor: AppColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          menuMaxHeight: 360,
+                          items: _languageDropdownItems,
+                          selectedItemBuilder: (context) {
+                            return LocaleService.allLanguages.map((lang) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    lang.name,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Language code: ${lang.code.toUpperCase()}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList();
+                          },
+                          onChanged: (selectedName) {
+                            if (selectedName != null) {
+                              final selectedOpt = LocaleService.allLanguages.firstWhere(
+                                (l) => l.name == selectedName,
+                                orElse: () => LocaleService.instance.currentLanguage,
+                              );
+                              setState(() {
+                                LocaleService.instance.setLanguage(selectedOpt);
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 24),
+                _buildSectionTitle(LocaleService.instance.tr('reminder_preferences')),
                 const SizedBox(height: 8),
                 _buildCard([
                   SwitchListTile(
                     value: _remindersEnabled,
                     activeThumbColor: AppColors.primary,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    title: const Text(
-                      'Enable Installment Reminders',
-                      style: TextStyle(
+                    title: Text(
+                      LocaleService.instance.tr('enable_installment_reminders'),
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    subtitle: const Text(
-                      'Receive notifications for upcoming monthly deadlines',
-                      style: TextStyle(
+                    subtitle: Text(
+                      LocaleService.instance.tr('receive_notifications_deadline'),
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
                       ),
@@ -217,17 +251,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const Divider(height: 1, color: AppColors.border),
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    title: const Text(
-                      'Reminder Lead Time',
-                      style: TextStyle(
+                    title: Text(
+                      LocaleService.instance.tr('reminder_lead_time'),
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    subtitle: const Text(
-                      'How early before due date to alert',
-                      style: TextStyle(
+                    subtitle: Text(
+                      LocaleService.instance.tr('how_early_to_alert'),
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
                       ),
@@ -254,17 +288,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const Divider(height: 1, color: AppColors.border),
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    title: const Text(
-                      'Daily Reminder Time',
-                      style: TextStyle(
+                    title: Text(
+                      LocaleService.instance.tr('daily_reminder_time'),
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    subtitle: const Text(
-                      'Time of day notifications will fire',
-                      style: TextStyle(
+                    subtitle: Text(
+                      LocaleService.instance.tr('time_notifications_fire'),
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
                       ),
@@ -297,51 +331,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ]),
                 const SizedBox(height: 24),
-                _buildSectionTitle('Data Management'),
-                const SizedBox(height: 8),
-                _buildCard([
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.error.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.delete_outline,
-                        color: AppColors.error,
-                        size: 20,
-                      ),
-                    ),
-                    title: const Text(
-                      'Reset All Data',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.error,
-                      ),
-                    ),
-                    subtitle: const Text(
-                      'Delete all savings goals, installments, and logs',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    onTap: () => _handleResetAllData(context),
-                  ),
-                ]),
-                const SizedBox(height: 24),
-                _buildSectionTitle('About'),
+                _buildSectionTitle(LocaleService.instance.tr('about')),
                 const SizedBox(height: 8),
                 _buildCard([
                   ListTile(
                     key: const Key('settings_about_card_button'),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    title: const Text(
-                      'About',
-                      style: TextStyle(
+                    title: Text(
+                      LocaleService.instance.tr('about'),
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,

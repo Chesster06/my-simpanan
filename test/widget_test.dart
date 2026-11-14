@@ -24,6 +24,7 @@ void main() {
     await tester.pumpWidget(
       MySimpananApp(savingsProvider: provider),
     );
+    await tester.pumpAndSettle(const Duration(seconds: 4));
 
     expect(find.byType(DashboardScreen), findsOneWidget);
     expect(find.text('MySimpanan'), findsOneWidget);

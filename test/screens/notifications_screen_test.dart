@@ -43,7 +43,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Reminders & Notifications'), findsOneWidget);
-    expect(find.text('All Caught Up!'), findsOneWidget);
+    expect(find.text('No notifications yet'), findsOneWidget);
   });
 
   testWidgets('NotificationsScreen displays clean text notices according to lead settings and navigates on tap', (tester) async {
@@ -144,7 +144,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('All Caught Up!'), findsOneWidget);
-    expect(find.text('Reminders are currently disabled in Settings.'), findsOneWidget);
+    expect(find.text('No notifications yet'), findsOneWidget);
   });
 }

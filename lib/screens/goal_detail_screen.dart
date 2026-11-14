@@ -4,6 +4,7 @@ import '../models/installment_item.dart';
 import '../models/payment_status.dart';
 import '../models/savings_goal.dart';
 import '../providers/savings_provider.dart';
+import '../services/locale_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/installment_row_item.dart';
 
@@ -25,12 +26,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
   final Set<String> _selectedInstallmentIds = {};
 
   String _formatCurrency(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'en_MY',
-      symbol: 'RM ',
-      decimalDigits: 2,
-    );
-    return formatter.format(amount);
+    return LocaleService.instance.formatCurrency(amount);
   }
 
   String _formatDate(DateTime date) {
@@ -90,9 +86,9 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.textSecondary),
+            child: Text(
+              LocaleService.instance.tr('cancel'),
+              style: const TextStyle(color: AppColors.textSecondary),
             ),
           ),
           ElevatedButton(
@@ -105,7 +101,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
                 borderRadius: BorderRadius.circular(6),
               ),
             ),
-            child: const Text('Confirm'),
+            child: Text(LocaleService.instance.tr('confirm')),
           ),
         ],
       ),
@@ -140,16 +136,16 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        title: const Text(
-          'Delete Goal',
-          style: TextStyle(
+        title: Text(
+          LocaleService.instance.tr('delete_goal'),
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
           ),
         ),
         content: Text(
-          'Are you sure you want to delete "${goal.name}"? This action cannot be undone.',
+          '${LocaleService.instance.tr('are_you_sure_delete_goal')} "${goal.name}"?',
           style: const TextStyle(
             fontSize: 14,
             color: AppColors.textSecondary,
@@ -159,9 +155,9 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.textSecondary),
+            child: Text(
+              LocaleService.instance.tr('cancel'),
+              style: const TextStyle(color: AppColors.textSecondary),
             ),
           ),
           TextButton(
@@ -169,7 +165,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
             style: TextButton.styleFrom(
               foregroundColor: AppColors.error,
             ),
-            child: const Text('Delete'),
+            child: Text(LocaleService.instance.tr('delete')),
           ),
         ],
       ),
@@ -357,7 +353,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Target Date: ${_formatDate(goal.targetDate)}',
+            '${LocaleService.instance.tr('target_date')}: ${_formatDate(goal.targetDate)}',
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w400,
@@ -387,7 +383,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
                 ),
               ),
               Text(
-                'Remaining: ${_formatCurrency(goal.remainingAmount)}',
+                '${LocaleService.instance.tr('remaining')}: ${_formatCurrency(goal.remainingAmount)}',
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -408,7 +404,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
               ),
             ),
             child: Text(
-              'Monthly: ${_formatCurrency(monthlyRate)}',
+              '${LocaleService.instance.tr('monthly')}: ${_formatCurrency(monthlyRate)}',
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -434,9 +430,9 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
       children: [
         Row(
           children: [
-            const Text(
-              'Installment Schedule',
-              style: TextStyle(
+            Text(
+              LocaleService.instance.tr('installment_schedule'),
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -450,7 +446,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
                 borderRadius: BorderRadius.circular(9999),
               ),
               child: Text(
-                '${pendingInstallments.length} pending',
+                '${pendingInstallments.length} ${LocaleService.instance.tr('pending').toLowerCase()}',
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -464,7 +460,9 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
           TextButton(
             onPressed: () => _selectAll(pendingInstallments),
             child: Text(
-              allSelected ? 'Deselect All' : 'Select All',
+              allSelected
+                  ? LocaleService.instance.tr('deselect_all')
+                  : LocaleService.instance.tr('select_all'),
               style: const TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,

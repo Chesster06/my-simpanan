@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../models/savings_goal.dart';
 import '../providers/savings_provider.dart';
 import '../services/installment_calculator.dart';
+import '../services/locale_service.dart';
 import '../theme/app_colors.dart';
 
 class CreateGoalScreen extends StatefulWidget {
@@ -151,11 +152,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormatter = NumberFormat.currency(
-      locale: 'ms_MY',
-      symbol: 'RM ',
-      decimalDigits: 2,
-    );
+    final currencySymbol = LocaleService.instance.currencySymbol;
     final monthYearFormatter = DateFormat('MMM yyyy');
     final fullDateFormatter = DateFormat('dd MMM yyyy');
 
@@ -172,9 +169,9 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
             height: 1.0,
           ),
         ),
-        title: const Text(
-          'New Savings Goal',
-          style: TextStyle(
+        title: Text(
+          LocaleService.instance.tr('new_savings_goal'),
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
@@ -192,14 +189,14 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               // Goal Name Field
-              _buildFieldLabel('Goal Name', isRequired: true),
+              _buildFieldLabel(LocaleService.instance.tr('goal_name'), isRequired: true),
               const SizedBox(height: 6),
               TextFormField(
                 key: const Key('goal_name_field'),
                 controller: _nameController,
                 textCapitalization: TextCapitalization.words,
                 decoration: InputDecoration(
-                  hintText: 'e.g. ASNB Bumiputera, Emergency Fund',
+                  hintText: LocaleService.instance.tr('goal_name_hint'),
                   hintStyle: const TextStyle(
                     color: AppColors.neutral,
                     fontSize: 14,
@@ -222,15 +219,15 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a goal name';
+                    return LocaleService.instance.tr('please_enter_goal_name');
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 18),
 
-              // Target Amount (RM)
-              _buildFieldLabel('Target Amount (RM)', isRequired: true),
+              // Target Amount
+              _buildFieldLabel('${LocaleService.instance.tr('target_amount')} ($currencySymbol)', isRequired: true),
               const SizedBox(height: 6),
               TextFormField(
                 key: const Key('target_amount_field'),
@@ -241,10 +238,19 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 ],
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
-                  prefixText: 'RM ',
-                  prefixStyle: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w600,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.only(left: 14, right: 6),
+                    child: Center(
+                      widthFactor: 0.0,
+                      child: Text(
+                        '$currencySymbol ',
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
                   ),
                   hintText: '0.00',
                   hintStyle: const TextStyle(
@@ -269,19 +275,19 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a valid target amount';
+                    return LocaleService.instance.tr('please_enter_valid_target_amount');
                   }
                   final parsed = double.tryParse(value.trim());
                   if (parsed == null || parsed <= 0) {
-                    return 'Target amount must be greater than 0';
+                    return LocaleService.instance.tr('target_amount_must_be_greater_than_zero');
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 18),
 
-              // Current Savings (RM, optional)
-              _buildFieldLabel('Current Initial Savings (RM)', isRequired: false),
+              // Current Savings (optional)
+              _buildFieldLabel('${LocaleService.instance.tr('initial_savings')} ($currencySymbol)', isRequired: false),
               const SizedBox(height: 6),
               TextFormField(
                 key: const Key('current_savings_field'),
@@ -292,12 +298,21 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 ],
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
-                  prefixText: 'RM ',
-                  prefixStyle: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w600,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.only(left: 14, right: 6),
+                    child: Center(
+                      widthFactor: 0.0,
+                      child: Text(
+                        '$currencySymbol ',
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
                   ),
-                  hintText: '0.00 (Optional)',
+                  hintText: '0.00 (${LocaleService.instance.tr('optional')})',
                   hintStyle: const TextStyle(
                     color: AppColors.neutral,
                     fontSize: 14,
@@ -331,7 +346,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               const SizedBox(height: 18),
 
               // Target Date Selection
-              _buildFieldLabel('Target Date', isRequired: true),
+              _buildFieldLabel(LocaleService.instance.tr('target_date'), isRequired: true),
               const SizedBox(height: 6),
               InkWell(
                 key: const Key('target_date_picker_tile'),
@@ -367,7 +382,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               const SizedBox(height: 18),
 
               // Monthly Due Day Selection
-              _buildFieldLabel('Monthly Payment Due Day (1 to 28)', isRequired: true),
+              _buildFieldLabel(LocaleService.instance.tr('monthly_payment_due_day'), isRequired: true),
               const SizedBox(height: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -382,15 +397,15 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Selected Due Day',
-                          style: TextStyle(
+                        Text(
+                          LocaleService.instance.tr('selected_due_day'),
+                          style: const TextStyle(
                             fontSize: 13,
                             color: AppColors.textSecondary,
                           ),
                         ),
                         Text(
-                          'Day $_dueDay of every month',
+                          LocaleService.instance.tr('day_of_month', params: {'day': '$_dueDay'}),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -420,7 +435,7 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
               const SizedBox(height: 24),
 
               // Live Calculation Banner
-              _buildLivePreviewCard(currencyFormatter, monthYearFormatter),
+              _buildLivePreviewCard(monthYearFormatter),
 
               const SizedBox(height: 24),
 
@@ -438,9 +453,9 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),
-                  child: const Text(
-                    'Save Goal',
-                    style: TextStyle(
+                  child: Text(
+                    LocaleService.instance.tr('save_goal'),
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -480,7 +495,6 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
   }
 
   Widget _buildLivePreviewCard(
-    NumberFormat currencyFormatter,
     DateFormat monthYearFormatter,
   ) {
     final commitment = _monthlyCommitment;
@@ -509,9 +523,9 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
                 color: AppColors.primary,
               ),
               const SizedBox(width: 8),
-              const Text(
-                'Commitment Schedule Preview',
-                style: TextStyle(
+              Text(
+                LocaleService.instance.tr('commitment_schedule_preview'),
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
@@ -523,15 +537,15 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Total Duration:',
-                style: TextStyle(
+              Text(
+                LocaleService.instance.tr('total_duration'),
+                style: const TextStyle(
                   fontSize: 13,
                   color: AppColors.textSecondary,
                 ),
               ),
               Text(
-                '$months ${months == 1 ? "month" : "months"}',
+                '$months ${months == 1 ? LocaleService.instance.tr('month') : LocaleService.instance.tr('months')}',
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -544,15 +558,15 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Estimated Monthly Commitment:',
-                style: TextStyle(
+              Text(
+                LocaleService.instance.tr('estimated_monthly_commitment'),
+                style: const TextStyle(
                   fontSize: 13,
                   color: AppColors.textSecondary,
                 ),
               ),
               Text(
-                '${currencyFormatter.format(commitment)} / month',
+                '${LocaleService.instance.formatCurrency(commitment)} ${LocaleService.instance.tr('per_month')}',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -565,9 +579,9 @@ class _CreateGoalScreenState extends State<CreateGoalScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Final Installment:',
-                style: TextStyle(
+              Text(
+                LocaleService.instance.tr('final_installment'),
+                style: const TextStyle(
                   fontSize: 13,
                   color: AppColors.textSecondary,
                 ),

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/payment_status.dart';
 import '../providers/savings_provider.dart';
+import '../services/locale_service.dart';
 import '../theme/app_colors.dart';
 import 'goal_detail_screen.dart';
 import 'settings_screen.dart';
@@ -60,9 +61,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 height: 1.0,
               ),
             ),
-            title: const Text(
-              'Reminders & Notifications',
-              style: TextStyle(
+            title: Text(
+              LocaleService.instance.tr('reminders_and_notifications'),
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -95,11 +96,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
 
     final list = <_NotificationNoticeItem>[];
-    final currencyFormat = NumberFormat.currency(
-      locale: 'en_MY',
-      symbol: 'RM ',
-      decimalDigits: 2,
-    );
     final dateFormat = DateFormat('dd MMM yyyy');
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -119,7 +115,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
         // Show notice only if overdue OR within the configured reminder lead days window
         if (isOverdue || daysUntilDue <= _leadDays) {
-          final formattedAmount = currencyFormat.format(installment.amount);
+          final formattedAmount = LocaleService.instance.formatCurrency(installment.amount);
           final formattedDueDate = dateFormat.format(installment.dueDate);
 
           String noticeMessage;
@@ -251,41 +247,102 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.symmetric(horizontal: 36),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Ilustrasi Kotak Surat (Mailbox) Biru / Ungu
             Container(
-              padding: const EdgeInsets.all(16),
+              width: 90,
+              height: 90,
               decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+                color: const Color(0xFFF1F3FD),
+                borderRadius: BorderRadius.circular(24),
               ),
-              child: const Icon(
-                Icons.check_circle_outline_rounded,
-                size: 44,
-                color: AppColors.success,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Tiang / Stand bawah
+                  Positioned(
+                    bottom: 14,
+                    child: Container(
+                      width: 14,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3B5998),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  // Badan Peti Surat
+                  Container(
+                    width: 58,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF5660E5), Color(0xFF7A86F8)],
+                        begin: Alignment.bottomLeft,
+                        end: Alignment.topRight,
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                        bottomLeft: Radius.circular(8),
+                        bottomRight: Radius.circular(8),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF5660E5).withValues(alpha: 0.28),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.check_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                  // Bendera Merah kecil di atas
+                  Positioned(
+                    top: 14,
+                    right: 20,
+                    child: Container(
+                      width: 14,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFA5252),
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(4),
+                          bottomRight: Radius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'All Caught Up!',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+            const SizedBox(height: 24),
+            Text(
+              LocaleService.instance.tr('no_notifications_yet'),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
+                letterSpacing: -0.2,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              !_remindersEnabled
-                  ? 'Reminders are currently disabled in Settings.'
-                  : 'You have no pending installment reminders for the configured alert window. Great job keeping your savings on track!',
+              LocaleService.instance.tr('notifications_appear_here'),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
                 color: AppColors.textSecondary,
-                height: 1.4,
+                height: 1.45,
               ),
             ),
           ],

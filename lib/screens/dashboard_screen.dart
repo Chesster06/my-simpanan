@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/savings_goal.dart';
 import '../providers/savings_provider.dart';
+import '../services/locale_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_logo_badge.dart';
 import '../widgets/minimalist_svg_illustrations.dart';
@@ -89,53 +90,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         return Scaffold(
           backgroundColor: AppColors.background,
-          appBar: AppBar(
-            backgroundColor: AppColors.surface,
-            elevation: 0,
-            surfaceTintColor: Colors.transparent,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(1.0),
-              child: Container(
-                color: AppColors.border,
-                height: 1.0,
-              ),
-            ),
-            titleSpacing: 16,
-            title: Row(
-              children: [
-                const AppLogoBadge(size: AppLogoBadgeSize.small),
-                const SizedBox(width: 12),
-                const Text(
-                  'MySimpanan',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+          appBar: _currentTabIndex == 1
+              ? null
+              : AppBar(
+                  backgroundColor: AppColors.surface,
+                  elevation: 0,
+                  surfaceTintColor: Colors.transparent,
+                  centerTitle: true,
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(1.0),
+                    child: Container(
+                      color: AppColors.border,
+                      height: 1.0,
+                    ),
                   ),
+                  // KIRI: Butang Settings (bersih tanpa background)
+                  leading: IconButton(
+                    key: const Key('app_bar_settings_button'),
+                    icon: const Icon(
+                      Icons.settings_outlined,
+                      color: AppColors.textPrimary,
+                      size: 24,
+                    ),
+                    tooltip: 'Settings',
+                    onPressed: () => _handleSettingsTap(context),
+                  ),
+                  // TENGAH: Badge logo kecil + nama MySimpanan
+                  title: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const AppLogoBadge(size: AppLogoBadgeSize.small),
+                      const SizedBox(width: 8),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'MySimpanan',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF5660E5),
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          Text(
+                            'SAVINGS TRACKER',
+                            style: TextStyle(
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textSecondary.withValues(alpha: 0.7),
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    IconButton(
+                      key: const Key('app_bar_notifications_button'),
+                      icon: const Icon(Icons.notifications_none_outlined, color: AppColors.textPrimary),
+                      tooltip: 'Reminders & Notifications',
+                      onPressed: () => _handleNotificationsTap(context),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                 ),
-              ],
-            ),
-            actions: [
-              IconButton(
-                key: const Key('app_bar_add_goal_button'),
-                icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary, size: 24),
-                tooltip: 'Add Goal',
-                onPressed: () => _handleNewGoal(context),
-              ),
-              IconButton(
-                key: const Key('app_bar_notifications_button'),
-                icon: const Icon(Icons.notifications_none_outlined, color: AppColors.textPrimary),
-                tooltip: 'Reminders & Notifications',
-                onPressed: () => _handleNotificationsTap(context),
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings_outlined, color: AppColors.textPrimary),
-                tooltip: 'Settings',
-                onPressed: () => _handleSettingsTap(context),
-              ),
-              const SizedBox(width: 8),
-            ],
-          ),
           body: SafeArea(
             child: widget.provider.isLoading
                 ? const Center(
@@ -143,25 +164,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       color: AppColors.primary,
                     ),
                   )
-                : AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 260),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    transitionBuilder: (child, animation) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
-                    },
-                    child: _currentTabIndex == 0
-                        ? KeyedSubtree(
-                            key: const ValueKey('home_view_tab'),
-                            child: _buildHomeView(context, goals),
-                          )
-                        : KeyedSubtree(
-                            key: const ValueKey('analytics_view_tab'),
-                            child: _buildAnalyticsView(context),
-                          ),
+                : IndexedStack(
+                    index: _currentTabIndex,
+                    children: [
+                      _buildHomeView(context, goals),
+                      _buildAnalyticsView(context),
+                    ],
                   ),
           ),
           bottomNavigationBar: NotchedBottomNavBar(
@@ -191,9 +199,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Savings Goals',
-              style: TextStyle(
+            Text(
+              LocaleService.instance.tr('savings_goals'),
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -201,7 +209,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             if (goals.isNotEmpty)
               Text(
-                '${goals.length} active',
+                '${goals.length} ${LocaleService.instance.tr('active')}',
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -234,9 +242,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final totalSavings = widget.provider.totalSavings;
     final overallProgress = totalTarget > 0 ? (totalSavings / totalTarget).clamp(0.0, 1.0) : 0.0;
 
+    // Calculate dynamic monthly commitments & averages
+    double totalMonthlyRates = 0.0;
+    int totalInstallmentsCount = 0;
+    int paidInstallmentsCount = 0;
+    int pendingInstallmentsCount = 0;
+
+    for (final g in goals) {
+      totalInstallmentsCount += g.installments.length;
+      for (final inst in g.installments) {
+        totalMonthlyRates += inst.amount;
+        if (inst.status.name == 'pending') {
+          pendingInstallmentsCount++;
+        } else {
+          paidInstallmentsCount++;
+        }
+      }
+    }
+
+    final avgMonthlyCommitment = totalInstallmentsCount > 0
+        ? totalMonthlyRates / totalInstallmentsCount
+        : 0.0;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // 1. Overall Progress Card
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -247,9 +278,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Overall Progress',
-                style: TextStyle(
+              Text(
+                LocaleService.instance.tr('overall_progress'),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
@@ -270,7 +301,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${(overallProgress * 100).toStringAsFixed(1)}% Achieved',
+                    '${(overallProgress * 100).toStringAsFixed(1)}% ${LocaleService.instance.tr('achieved')}',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -278,7 +309,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   Text(
-                    '${goals.length} Total Goals',
+                    '${goals.length} ${LocaleService.instance.tr('total_goals')}',
                     style: const TextStyle(
                       fontSize: 13,
                       color: AppColors.textSecondary,
@@ -290,6 +321,95 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
         const SizedBox(height: 16),
+
+        // 2. Average Statistics Grid (Purata & Key Metrics - sama tinggi & seimbang)
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 34),
+                        child: Text(
+                          LocaleService.instance.tr('avg_monthly_commitment'),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        LocaleService.instance.formatCurrency(avgMonthlyCommitment),
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 34),
+                        child: Text(
+                          LocaleService.instance.tr('total_target_amount'),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        LocaleService.instance.formatCurrency(totalTarget),
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 4. Savings Health Analysis & Installment Breakdown
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -300,9 +420,105 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Active Goal Targets',
-                style: TextStyle(
+              Text(
+                LocaleService.instance.tr('savings_analysis'),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF10B981),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        LocaleService.instance.tr('paid_installments'),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '$paidInstallmentsCount',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF10B981),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Divider(height: 1, color: AppColors.border),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF59E0B),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        LocaleService.instance.tr('pending_installments'),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '$pendingInstallmentsCount',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFF59E0B),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 5. Active Goal Targets Breakdown
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                LocaleService.instance.tr('active_goal_targets'),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
@@ -310,9 +526,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 16),
               if (goals.isEmpty)
-                const Text(
-                  'No goals created yet. Create a goal to see breakdown analytics.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                Text(
+                  LocaleService.instance.tr('no_goals_breakdown'),
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                 )
               else
                 ...goals.map((g) {
@@ -332,7 +548,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         Text(
-                          'RM ${g.currentSavings.toStringAsFixed(2)} / RM ${g.targetAmount.toStringAsFixed(2)}',
+                          '${LocaleService.instance.formatCurrency(g.currentSavings)} / ${LocaleService.instance.formatCurrency(g.targetAmount)}',
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
@@ -346,6 +562,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
+        const SizedBox(height: 40),
       ],
     );
   }
@@ -379,9 +596,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
-            'No Savings Goals Yet',
-            style: TextStyle(
+          Text(
+            LocaleService.instance.tr('no_savings_goals_yet'),
+            style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.2,
@@ -389,10 +606,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Start your savings journey by creating your first monthly commitment goal.',
+          Text(
+            LocaleService.instance.tr('start_savings_journey'),
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w400,
               color: AppColors.textSecondary,

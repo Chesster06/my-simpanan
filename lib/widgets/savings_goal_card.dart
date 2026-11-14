@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/payment_status.dart';
 import '../models/savings_goal.dart';
+import '../services/locale_service.dart';
 import '../theme/app_colors.dart';
 import 'minimalist_svg_illustrations.dart';
 
@@ -16,12 +16,7 @@ class SavingsGoalCard extends StatelessWidget {
   });
 
   String _formatCurrency(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'en_MY',
-      symbol: 'RM ',
-      decimalDigits: 2,
-    );
-    return formatter.format(amount);
+    return LocaleService.instance.formatCurrency(amount);
   }
 
   PaymentStatus get _currentStatus {
@@ -108,9 +103,9 @@ class SavingsGoalCard extends StatelessWidget {
                         color: AppColors.success.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(9999),
                       ),
-                      child: const Text(
-                        'Completed',
-                        style: TextStyle(
+                      child: Text(
+                        LocaleService.instance.tr('completed'),
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppColors.success,

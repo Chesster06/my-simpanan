@@ -36,13 +36,13 @@ void main() {
 
     expect(find.byType(AppLogoBadge), findsOneWidget);
     expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
-    expect(find.byKey(const Key('app_bar_add_goal_button')), findsOneWidget);
+    expect(find.byKey(const Key('app_bar_notifications_button')), findsOneWidget);
     expect(find.byType(SummaryHeaderCard), findsOneWidget);
     expect(find.text('No Savings Goals Yet'), findsOneWidget);
     expect(find.byKey(const Key('empty_state_illustration')), findsOneWidget);
   });
 
-  testWidgets('tapping app bar add goal icon navigates to CreateGoalScreen by default', (tester) async {
+  testWidgets('tapping bottom nav center add goal icon navigates to CreateGoalScreen by default', (tester) async {
     final repository = MockSavingsRepository([]);
     final provider = SavingsProvider(repository: repository);
     await provider.initialize();
@@ -53,7 +53,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byKey(const Key('app_bar_add_goal_button')));
+    await tester.tap(find.byKey(const Key('nav_center_add_button')));
     await tester.pumpAndSettle();
 
     expect(find.text('New Savings Goal'), findsOneWidget);
@@ -135,6 +135,13 @@ void main() {
   });
 
   testWidgets('tapping settings icon navigates to SettingsScreen by default', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     SharedPreferences.setMockInitialValues({});
     final repository = MockSavingsRepository([]);
     final provider = SavingsProvider(repository: repository);
@@ -153,6 +160,6 @@ void main() {
 
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Reminder Preferences'), findsOneWidget);
-    expect(find.text('Data Management'), findsOneWidget);
+    expect(find.text('About'), findsWidgets);
   });
 }
